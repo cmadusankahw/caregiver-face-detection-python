@@ -6,4 +6,4 @@ imutils==0.5.3
 --upgrade setuptools
 --upgrade gcloud
 pyrebase
-
+google-cloud-storage

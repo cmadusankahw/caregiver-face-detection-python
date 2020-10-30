@@ -1,9 +1,9 @@
 from PyQt5 import QtWidgets, uic
 import sys
-
 from create_classifier import *
 from create_dataset import *
 from firebase_auth import *
+from firebase_db import *
 
 
 def center(self):
@@ -17,32 +17,43 @@ def center(self):
 class MainUi(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainUi, self).__init__()
-        uic.loadUi('home.ui', self)
+        uic.loadUi('gui/home.ui', self)
 
         # Find the button
         self.addNew = self.findChild(QtWidgets.QPushButton, 'addNewButton')
         self.addNew.clicked.connect(self.showAddNewUi)
+
+        # Find the button
+        self.detectElder = self.findChild(QtWidgets.QPushButton, 'detectButton')
+        self.detectElder.clicked.connect(self.showDetectElderUi)
 
         self.centerWindow()
 
     def centerWindow(self):
         center(self)
 
-    def showLoginUi(self):
+    def showAddNewUi(self):
         self.registerElder = RegisterElderUi()
         self.registerElder.show()
 
+    def showDetectElderUi(self):
+        self.detectElder = DetectElderUi()
+        self.detectElder.show()
+
 
 # Add New Elder with Face Data Training ######################################################
-
 class RegisterElderUi(QtWidgets.QMainWindow):
     def __init__(self):
         super(RegisterElderUi, self).__init__()
-        uic.loadUi('addElder.ui', self)
+        uic.loadUi('gui/addElder.ui', self)
 
         # Find the button
         self.addElder = self.findChild(QtWidgets.QPushButton, 'addNewButton')
         self.addElder.clicked.connect(self.addNewElder)
+
+        # find the window exit button
+        self.exitWindow = self.findChild(QtWidgets.QPushButton, 'exitButton')
+        self.exitWindow.clicked.connect(self.exitRegister)
 
         self.centerWindow()
 
@@ -53,30 +64,64 @@ class RegisterElderUi(QtWidgets.QMainWindow):
         # add new elder
         print('add new elder')
 
+    def storeXMLFile(self, filename):
+        storeResponse = retrieveXML(filename)
+        print(storeResponse)
+
+    def exitRegister(self):
+        self.destroy()
+
     # ToDo to Edit
-    def capimg(self):
-        self.numimglabel.config(text=str("Captured Images = 0 "))
-        # messagebox.showinfo("INSTRUCTIONS", "We will Capture 300 pic of your Face.")
-        x = start_capture(self.controller.active_name)
-        self.controller.num_of_images = x
-        self.numimglabel.config(text=str("Number of images captured = " + str(x)))
+    # def capimg(self):
+    #     self.numimglabel.config(text=str("Captured Images = 0 "))
+    #     # messagebox.showinfo("INSTRUCTIONS", "We will Capture 300 pic of your Face.")
+    #     x = start_capture(self.controller.active_name)
+    #     self.controller.num_of_images = x
+    #     self.numimglabel.config(text=str("Number of images captured = " + str(x)))
 
     # ToDo to edit
-    def trainmodel(self):
-        if self.controller.num_of_images < 300:
-            # messagebox.showerror("ERROR", "No enough Data, Capture at least 300 images!")
-            return
-        train_classifer(self.controller.active_name)
-        # messagebox.showinfo("SUCCESS", "The modele has been successfully trained!")
-        self.controller.show_frame("PageFour")
+    # def trainmodel(self):
+    #     if self.controller.num_of_images < 300:
+    #         # messagebox.showerror("ERROR", "No enough Data, Capture at least 300 images!")
+    #         return
+    #     train_classifer(self.controller.active_name)
+    #     # messagebox.showinfo("SUCCESS", "The modele has been successfully trained!")
+    #     self.controller.show_frame("PageFour")
+
+
+# Detect an Elder with trained face recognition data ##########################################
+class DetectElderUi(QtWidgets.QMainWindow):
+    def __init__(self):
+        super(DetectElderUi, self).__init__()
+        uic.loadUi('gui/detectElder.ui', self)
+
+        # Find the Face detector button
+        self.detectFace = self.findChild(QtWidgets.QPushButton, 'detectButton')
+        self.detectFace.clicked.connect(self.detectElderFace)
+
+        # find the window exit button
+        self.exitWindow = self.findChild(QtWidgets.QPushButton, 'exitButton')
+        self.exitWindow.clicked.connect(self.exitDetector)
+
+        self.centerWindow()
+
+    def centerWindow(self):
+        center(self)
+
+    def detectElderFace(self):
+        # running detector
+        # detector will return elder_name so elder data can be retrived
+        print("runnig face recognition cam window")
+
+    def exitDetector(self):
+        self.destroy()
 
 
 # Login and Signup - CareGiver ################################################################
-
 class SignUpUi(QtWidgets.QMainWindow):
     def __init__(self):
         super(SignUpUi, self).__init__()
-        uic.loadUi('signup.ui', self)
+        uic.loadUi('gui/signup.ui', self)
 
         # Find the back to login button
         self.signupButton = self.findChild(QtWidgets.QPushButton, 'loginButton')
@@ -115,7 +160,7 @@ class SignUpUi(QtWidgets.QMainWindow):
 class LoginUi(QtWidgets.QMainWindow):
     def __init__(self):
         super(LoginUi, self).__init__()
-        uic.loadUi('login.ui', self)
+        uic.loadUi('gui/login.ui', self)
 
         # Find the login button
         self.loginButton = self.findChild(QtWidgets.QPushButton, 'loginButton')

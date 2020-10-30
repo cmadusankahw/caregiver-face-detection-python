@@ -1,7 +1,6 @@
 import json
 
 import pyrebase
-from getpass import getpass
 import requests
 
 firebaseConfig = {
@@ -24,7 +23,7 @@ auth = firebase.auth()
 def signUp(email, password):
     try:
         auth.create_user_with_email_and_password(email, password)
-        print("successfully created new careGiver Profile ...")
+        print(" successfully created new careGiver Profile ...")
         return "success"
     except requests.HTTPError as e:
         error_json = e.args[1]
@@ -38,7 +37,7 @@ def signUp(email, password):
 def signIn(email, password):
     try:
         auth.sign_in_with_email_and_password(email, password)
-        print(email + "successfully logged in ...")
+        print(email + " successfully logged in ...")
         return "success"
     except requests.HTTPError as e:
         error_json = e.args[1]
