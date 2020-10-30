@@ -522,7 +522,7 @@
      <string>Sign Up</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="password">
+   <widget class="QLineEdit" name="passwordInput">
     <property name="geometry">
      <rect>
       <x>130</x>
@@ -541,7 +541,7 @@
      <string>Password</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="email">
+   <widget class="QLineEdit" name="emailInput">
     <property name="geometry">
      <rect>
       <x>130</x>
