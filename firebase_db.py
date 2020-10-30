@@ -1,6 +1,9 @@
 import json
 import os
 import requests
+from PyQt5.QtWidgets import *
+
+from ElderModel import *
 from firebase_auth import firebase
 
 db = firebase.database()
@@ -43,3 +46,10 @@ def getXMLURL(filename):
         if error:
             print(error)
         return error
+
+def appendElderList(tabledata = tableData, header=headerData):
+    elderTable = QTableView()
+    elderTable.setModel(ElderTableModel(tabledata, header))
+    elderTable.model().layoutChanged.emit()
+    print('successfully setup elders table data')
+    return elderTable

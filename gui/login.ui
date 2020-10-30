@@ -465,7 +465,7 @@
    </palette>
   </property>
   <property name="windowTitle">
-   <string>Login - CareGiver FaceDetection</string>
+   <string>Login - AI CareGiver</string>
   </property>
   <property name="autoFillBackground">
    <bool>true</bool>

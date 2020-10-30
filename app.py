@@ -1,10 +1,11 @@
 from PyQt5 import QtWidgets, uic
 import sys
+
 from create_classifier import *
 from create_dataset import *
 from firebase_auth import *
 from firebase_db import *
-
+from ElderModel import *
 
 def center(self):
     frameGm = self.frameGeometry()
@@ -12,6 +13,7 @@ def center(self):
     centerPoint = QtWidgets.QApplication.desktop().screenGeometry(screen).center()
     frameGm.moveCenter(centerPoint)
     self.move(frameGm.topLeft())
+
 
 
 class MainUi(QtWidgets.QMainWindow):
@@ -27,7 +29,26 @@ class MainUi(QtWidgets.QMainWindow):
         self.detectElder = self.findChild(QtWidgets.QPushButton, 'detectButton')
         self.detectElder.clicked.connect(self.showDetectElderUi)
 
+        # find exit menu item
+        self.exitMenu = self.findChild(QtWidgets.QAction, "actionExit")
+        self.exitMenu.triggered.connect(self.exitApp)
+
+        # set the table model
+        self.elderTableWidget = appendElderList()
+        self.elderTableWidget.resize(1230, 260)
+        self.elderTableWidget.move(40,470)
+        header = self.elderTableWidget.horizontalHeader()
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+        header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
+        self.layout().addWidget(self.elderTableWidget)
+
         self.centerWindow()
+
+    def exitApp(self):
+        self.destroy()
 
     def centerWindow(self):
         center(self)

@@ -28,8 +28,10 @@ def signUp(email, password):
     except requests.HTTPError as e:
         error_json = e.args[1]
         error = json.loads(error_json)['error']['message']
-        if error:
-            print(error)
+        if error == "INVALID_PASSWORD" | error == "INVALID_EMAIL":
+            print("Invalid Username or Password")
+        else :
+            print("And Error Occurred: Error Code(" + error + ")")
         return error
 
 
@@ -43,6 +45,6 @@ def signIn(email, password):
         error_json = e.args[1]
         error = json.loads(error_json)['error']['message']
         if error:
-            print(error)
+            print("And Error Occurred: Error Code(" + error + ")")
         return error
 
