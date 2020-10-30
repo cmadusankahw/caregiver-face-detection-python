@@ -144,7 +144,7 @@
     <property name="geometry">
      <rect>
       <x>710</x>
-      <y>260</y>
+      <y>250</y>
       <width>321</width>
       <height>51</height>
      </rect>
@@ -260,8 +260,14 @@
     <addaction name="actionAdd_New_Elder_to_System"/>
     <addaction name="actionDetect_an_Elder"/>
    </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>About</string>
+    </property>
+   </widget>
    <addaction name="menuMenu"/>
    <addaction name="menuElders"/>
+   <addaction name="menuAbout"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionExit">

@@ -1,7 +1,7 @@
 from PyQt5.QtCore import *
 
 headerData = ["ID", "Name", "Age", "Medicine", "Quantity"]
-tableData = [[1234567890, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12, 13, 14, 15], [16, 17, 18, 19, 20]] # temp
+tableData = [[1234567890, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12, 13, 14, 15], [16, 17, 18, 19, 20]]
 
 class ElderTableModel(QAbstractTableModel):
     def __init__(self, datain, headerdata=headerData, parent=None):

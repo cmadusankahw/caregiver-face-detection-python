@@ -1,11 +1,11 @@
 from PyQt5 import QtWidgets, uic
 import sys
-
+from PyQt5.QtGui import *
 from create_classifier import *
 from create_dataset import *
 from firebase_auth import *
 from firebase_db import *
-from ElderModel import *
+from ElderTModel import *
 
 def center(self):
     frameGm = self.frameGeometry()
@@ -68,25 +68,76 @@ class RegisterElderUi(QtWidgets.QMainWindow):
         super(RegisterElderUi, self).__init__()
         uic.loadUi('gui/addElder.ui', self)
 
+        # setting gender selection combo box
+        self.elderGender = self.findChild(QtWidgets.QComboBox, "elderGender")
+        self.elderGender.addItems(["Male", "Female"])
+
         # Find the button
         self.addElder = self.findChild(QtWidgets.QPushButton, 'addNewButton')
-        self.addElder.clicked.connect(self.addNewElder)
+        self.addElder.clicked.connect(self.addElderFunc)
 
         # find the window exit button
         self.exitWindow = self.findChild(QtWidgets.QPushButton, 'exitButton')
         self.exitWindow.clicked.connect(self.exitRegister)
+
+        # find the text inputs
+        self.elderId = self.findChild(QtWidgets.QLineEdit, "elderId")
+        self.elderName = self.findChild(QtWidgets.QLineEdit, "elderName")
+        self.elderAge = self.findChild(QtWidgets.QLineEdit, "elderAge")
+        self.elderDOB = self.findChild(QtWidgets.QDateEdit, "elderDOB")
+        self.elderTablets = self.findChild(QtWidgets.QTextEdit, "elderTablets")
+        self.tabletQty = self.findChild(QtWidgets.QLineEdit, "tabletQty")
+        self.tabletTimeToTake = self.findChild(QtWidgets.QTimeEdit, "tabletTimeToTake")
 
         self.centerWindow()
 
     def centerWindow(self):
         center(self)
 
-    def addNewElder(self):
-        # add new elder
-        print('add new elder')
+    def addElderFunc(self):
+        # ToDo Run Image Capture and Detector passing elderId as dirname
+        self.storeXMLFile(self.elderId.text() + "_classifier.xml")
+        elder = {
+            "id": self.elderId.text(),
+            "name": self.elderName.text(),
+            "age": self.elderAge.text(),
+            "gender": self.elderGender.text(),
+            "dob": self.elderDOB.date().toPyDate(),
+            "tablets": self.elderTablets.text(),
+            "quantity": self.tabletQty.text(),
+            "timeToTake": self.tabletTimeToTake.time().hour() + ":" + self.tabletTimeToTake.time().minute()
+        }
+        response = addElder(elder)
+        if response == "success":
+            self.destroy()
+
+    def updateElderFunc(self):
+        # ToDo update Elder method
+        elder = {
+            "id": self.elderId.text(),
+            "name": self.elderName.text(),
+            "age": self.elderAge.text(),
+            "gender": self.elderGender.text(),
+            "dob": self.elderDOB.date().toPyDate(),
+            "tablets": self.elderTablets.text(),
+            "quantity": self.tabletQty.text(),
+            "timeToTake": self.tabletTimeToTake.time().hour() + ":" + self.tabletTimeToTake.time().minute()
+        }
+        print()
+
+
+    def removeElderFunc(self):
+        # ToDo remove Elder method
+        print()
+
+
+    def searchElderFunc(self):
+        # ToDo search Elder using ID for update/remove
+        print()
+
 
     def storeXMLFile(self, filename):
-        storeResponse = retrieveXML(filename)
+        storeResponse = storeXML(filename)
         print(storeResponse)
 
     def exitRegister(self):
@@ -118,21 +169,49 @@ class DetectElderUi(QtWidgets.QMainWindow):
 
         # Find the Face detector button
         self.detectFace = self.findChild(QtWidgets.QPushButton, 'detectButton')
-        self.detectFace.clicked.connect(self.detectElderFace)
+        self.detectFace.clicked.connect(self.detectElder)
 
         # find the window exit button
         self.exitWindow = self.findChild(QtWidgets.QPushButton, 'exitButton')
         self.exitWindow.clicked.connect(self.exitDetector)
+
+        # find the image
+        self.elderImg = self.findChild(QtWidgets.QLabel, "elderImg")
+
+        # find the text inputs
+        self.elderId = self.findChild(QtWidgets.QLabel, "elderId")
+        self.elderName = self.findChild(QtWidgets.QLabel, "elderName")
+        self.elderAge = self.findChild(QtWidgets.QLabel, "elderAge")
+        self.elderGender = self.findChild(QtWidgets.QLabel, "elderGender")
+        self.elderDOB = self.findChild(QtWidgets.QLabel, "elderName")
+        self.elderTablets = self.findChild(QtWidgets.QLabel, "elderTablets")
+        self.tabletQty = self.findChild(QtWidgets.QLabel, "tabletQty")
+        self.tabletTimeToTake = self.findChild(QtWidgets.QLabel, "tabletTimeToTake")
 
         self.centerWindow()
 
     def centerWindow(self):
         center(self)
 
-    def detectElderFace(self):
-        # running detector
-        # detector will return elder_name so elder data can be retrived
-        print("runnig face recognition cam window")
+    def detectElder(self):
+        print("running face recognition cam window")
+
+        # ToDo detector will return elder_name so elder data can be retrived
+        # ToDo pass returned elder ID here
+
+        elder = getElder("chiran")
+
+        if elder != "failed":
+            pixmap = QPixmap("data/"+elder["id"] + "/0"+elder["id"]+".jpg")
+            self.elderImg.setPixmap(pixmap)
+            self.elderId.setProperty("text", elder["id"])
+            self.elderName.setProperty("text", elder["name"])
+            self.elderAge.setProperty("text", elder["age"])
+            self.elderDOB.setProperty("text", elder["dob"])
+            self.elderTablets.setProperty("text", elder["tablets"])
+            self.tabletQty.setProperty("text", elder["quantity"])
+            self.tabletTimeToTake.setProperty("text", elder["timeToTake"])
+
 
     def exitDetector(self):
         self.destroy()
