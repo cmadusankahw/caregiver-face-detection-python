@@ -18,6 +18,7 @@ firebase = pyrebase.initialize_app(firebaseConfig)
 
 auth = firebase.auth()
 
+user = {}
 
 # signup
 def signUp(email, password):
@@ -38,7 +39,8 @@ def signUp(email, password):
 # signin
 def signIn(email, password):
     try:
-        auth.sign_in_with_email_and_password(email, password)
+        global user
+        user = auth.sign_in_with_email_and_password(email, password)
         print(email + " successfully logged in ...")
         return "success"
     except requests.HTTPError as e:

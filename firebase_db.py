@@ -1,17 +1,19 @@
 import json
 import os
+import time
 import requests
 from PyQt5.QtWidgets import *
 
 from ElderTModel import *
-from firebase_auth import firebase
+from firebase_auth import *
 
 db = firebase.database()
 storage = firebase.storage()
-
+db.child("elders")
 
 # FaceData Storage Methods ##################################################################
 def storeXML(filename):
+    time.sleep(2)
     try:
         storage.child("data/" + filename).put(os.path.abspath("data/classifiers/" + filename))
         print("successfully uploaded xml to FireStore ...")
@@ -48,45 +50,116 @@ def getXMLURL(filename):
             print(error)
         return error
 
-# ToDo
+
 # Elders Database Methods ###################################################################
+
+def getSingleElder(id):
+    try:
+        elder = db.child("elders").child(id).get()
+        print('successfully retrieved elders')
+        print(elder.val())
+        return elder.val()
+    except requests.HTTPError as error:
+        if error:
+            print(error)
+        return "failed"
+
+getSingleElder("chiran")
+
+def getElders():
+    try:
+        elders = db.child("elders").get()
+        print('successfully retrieved elders')
+        eldersList = []
+        if elders.val() is not None:
+            for elder in elders.each():
+                eldersList.append([elder.key(),
+                                   elder.val()["name"],
+                                   elder.val()["age"],
+                                   elder.val()["tablets"],
+                                   elder.val()["quantity"],
+                                   elder.val()["timeToTake"]])
+            print(eldersList)
+            return eldersList
+        else:
+            return []
+    except requests.HTTPError as error:
+        if error:
+            print(error)
+        return []
+
+
 def getElder(id):
     try:
-        print('successfully retrieved elder')
-        return {
-            "id": id,
-            "name": "Chiran",
-            "age": 24,
-            "gender": "Male",
-            "dob": "1996-7-8",
-            "tablets": "panadol",
-            "quantity": 2,
-            "timeToTake": "12.30"
-        }
-    except requests.HTTPError as e:
-        error_json = e.args[1]
-        error = json.loads(error_json)['error']['message']
+        elder = db.child("elders").child(id).get()
+        print('successfully retrieved the elder')
+        print(elder.val())
+        if elder.val() is None:
+            return "failed"
+        else:
+            return elder.val()
+    except requests.HTTPError as error:
         if error:
             print(error)
         return "failed"
 
 
-def getElders():
-    print('successfully retrieved elders')
-    return [[1234567890, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12, 13, 14, 15], [16, 17, 18, 19, 20]]  # temp
-
-
 def addElder(elder):
-    print('successfully added an elder')
+    try:
+        db.child("elders").child(elder["id"]).set({
+            "id": elder["id"],
+            "name": elder["name"],
+            "age": elder["age"],
+            "gender": elder["gender"],
+            "dob": elder["dob"],
+            "tablets": elder["tablets"],
+            "quantity": elder["quantity"],
+            "timeToTake": elder["timeToTake"]
+        })
+        print('successfully added an elder')
+        return "success"
+    except requests.HTTPError as error:
+        if error:
+            print(error)
+        return "failed"
 
+# addElder({
+#     "id": "kamal",
+#     "name": "Kamal M",
+#     "age": 24,
+#     "gender": "Male",
+#     "dob": "1995-4-6",
+#     "tablets": "panadol",
+#     "quantity": 2,
+#     "timeToTake": "11:00"
+# })
 
 def updateElder(elder):
-    print('successfully updated the elder')
+    try:
+        db.child("elders").child(elder["id"]).update({
+            "name": elder["name"],
+            "age": elder["age"],
+            "tablets": elder["tablets"],
+            "quantity": elder["quantity"],
+            "timeToTake": elder["timeToTake"]
+        })
+        print('successfully updated the elder')
+        return "success"
+    except requests.HTTPError as error:
+        if error:
+            print(error)
+        return "failed"
 
 
 def removeElder(id):
-    print('successfully removed elder')
-
+    try:
+        db.child("elders").child(id).remove()
+        print('successfully removed the elder')
+        return "success"
+    except requests.HTTPError as error:
+        if error:
+            print(error)
+        return "failed"
 
 def appendElderList(tabledata=tableData, header=headerData):
     elderTable = QTableView()

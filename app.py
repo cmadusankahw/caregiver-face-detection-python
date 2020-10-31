@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, uic, QtCore
 import sys
 from PyQt5.QtGui import *
 from create_classifier import *
@@ -13,7 +13,6 @@ def center(self):
     centerPoint = QtWidgets.QApplication.desktop().screenGeometry(screen).center()
     frameGm.moveCenter(centerPoint)
     self.move(frameGm.topLeft())
-
 
 
 class MainUi(QtWidgets.QMainWindow):
@@ -34,7 +33,7 @@ class MainUi(QtWidgets.QMainWindow):
         self.exitMenu.triggered.connect(self.exitApp)
 
         # set the table model
-        self.elderTableWidget = appendElderList()
+        self.elderTableWidget = appendElderList() #getElders()
         self.elderTableWidget.resize(1230, 260)
         self.elderTableWidget.move(40,470)
         header = self.elderTableWidget.horizontalHeader()
@@ -72,22 +71,44 @@ class RegisterElderUi(QtWidgets.QMainWindow):
         self.elderGender = self.findChild(QtWidgets.QComboBox, "elderGender")
         self.elderGender.addItems(["Male", "Female"])
 
-        # Find the button
-        self.addElder = self.findChild(QtWidgets.QPushButton, 'addNewButton')
-        self.addElder.clicked.connect(self.addElderFunc)
+        self.addElderBtn = self.findChild(QtWidgets.QPushButton, 'addNewButton')
+        self.addElderBtn.clicked.connect(self.addElderFunc)
 
-        # find the window exit button
-        self.exitWindow = self.findChild(QtWidgets.QPushButton, 'exitButton')
-        self.exitWindow.clicked.connect(self.exitRegister)
+        self.updateElderBtn = self.findChild(QtWidgets.QPushButton, 'updateButton')
+        self.updateElderBtn.clicked.connect(self.updateElderFunc)
+
+        self.removeElderBtn = self.findChild(QtWidgets.QPushButton, 'removeButton')
+        self.removeElderBtn.clicked.connect(self.removeElderFunc)
+
+        self.removeElderBtn = self.findChild(QtWidgets.QPushButton, 'resetButton')
+        self.removeElderBtn.clicked.connect(self.resetUpdateFields)
+
+        self.findElderBtn = self.findChild(QtWidgets.QPushButton, 'findButton')
+        self.findElderBtn.clicked.connect(self.searchElderFunc)
+
+        self.openCamBtn = self.findChild(QtWidgets.QPushButton, 'camButton')
+        self.openCamBtn.clicked.connect(self.trainFace)
 
         # find the text inputs
         self.elderId = self.findChild(QtWidgets.QLineEdit, "elderId")
         self.elderName = self.findChild(QtWidgets.QLineEdit, "elderName")
-        self.elderAge = self.findChild(QtWidgets.QLineEdit, "elderAge")
+        self.elderAge = self.findChild(QtWidgets.QSpinBox, "elderAge")
         self.elderDOB = self.findChild(QtWidgets.QDateEdit, "elderDOB")
-        self.elderTablets = self.findChild(QtWidgets.QTextEdit, "elderTablets")
-        self.tabletQty = self.findChild(QtWidgets.QLineEdit, "tabletQty")
+        self.elderTablets = self.findChild(QtWidgets.QLineEdit, "elderTablets")
+        self.tabletQty = self.findChild(QtWidgets.QSpinBox, "tabletQty")
         self.tabletTimeToTake = self.findChild(QtWidgets.QTimeEdit, "tabletTimeToTake")
+        self.infoLabel = self.findChild(QtWidgets.QLabel, "infoLabel")
+        self.elderImg = self.findChild(QtWidgets.QLabel, "elderImg")
+
+        # find update inputs
+        self.updateElderId = self.findChild(QtWidgets.QLineEdit, "uelderId")
+        self.updateElderName = self.findChild(QtWidgets.QLineEdit, "uelderName")
+        self.updateElderAge = self.findChild(QtWidgets.QSpinBox, "uelderAge")
+        self.updateElderTablets = self.findChild(QtWidgets.QLineEdit, "uelderTablets")
+        self.updateTabletQty = self.findChild(QtWidgets.QSpinBox, "utabletQty")
+        self.updateTabletTimeToTake = self.findChild(QtWidgets.QTimeEdit, "utabletTimeToTake")
+        self.updateInfoLabel = self.findChild(QtWidgets.QLabel, "uinfoLabel")
+        self.updateElderImg = self.findChild(QtWidgets.QLabel, "uelderImg")
 
         self.centerWindow()
 
@@ -96,49 +117,88 @@ class RegisterElderUi(QtWidgets.QMainWindow):
 
     def addElderFunc(self):
         # ToDo Run Image Capture and Detector passing elderId as dirname
-        self.storeXMLFile(self.elderId.text() + "_classifier.xml")
+        self.infoLabel.setProperty("text", "Face Data Uploading.. Please Wait..")
         elder = {
-            "id": self.elderId.text(),
-            "name": self.elderName.text(),
-            "age": self.elderAge.text(),
-            "gender": self.elderGender.text(),
-            "dob": self.elderDOB.date().toPyDate(),
-            "tablets": self.elderTablets.text(),
-            "quantity": self.tabletQty.text(),
-            "timeToTake": self.tabletTimeToTake.time().hour() + ":" + self.tabletTimeToTake.time().minute()
+            "id": str(self.elderId.text()),
+            "name": str(self.elderName.text()),
+            "age": int(self.elderAge.value()),
+            "gender": str(self.elderGender.currentText()),
+            "dob": str(self.elderDOB.date().toPyDate()),
+            "tablets": str(self.elderTablets.text()),
+            "quantity": int(self.tabletQty.value()),
+            "timeToTake": str(self.tabletTimeToTake.time().hour()) + ":" + str(self.tabletTimeToTake.time().minute())
         }
+        # self.storeXMLFile(self.elderId.text() + "_classifier.xml")
+        self.infoLabel.setProperty("text", "Elder Record creating.. Please Wait..")
         response = addElder(elder)
         if response == "success":
-            self.destroy()
+            self.infoLabel.setProperty("text", "Elder added Successfully!")
+            self.resetFields()
 
     def updateElderFunc(self):
-        # ToDo update Elder method
         elder = {
-            "id": self.elderId.text(),
-            "name": self.elderName.text(),
-            "age": self.elderAge.text(),
-            "gender": self.elderGender.text(),
-            "dob": self.elderDOB.date().toPyDate(),
-            "tablets": self.elderTablets.text(),
-            "quantity": self.tabletQty.text(),
-            "timeToTake": self.tabletTimeToTake.time().hour() + ":" + self.tabletTimeToTake.time().minute()
+            "id": str(self.updateElderId.text()),
+            "name": str(self.updateElderName.text()),
+            "age": int(self.updateElderAge.value()),
+            "tablets": str(self.updateElderTablets.text()),
+            "quantity": int(self.updateTabletQty.value()),
+            "timeToTake": str(self.updateTabletTimeToTake.time().hour()) + ":" + str(self.updateTabletTimeToTake.time().minute())
         }
-        print()
-
+        response = updateElder(elder)
+        if response == "success":
+            self.resetUpdateFields()
+            self.updateInfoLabel.setProperty("text", "Elder details Updated Successfully!")
+        else:
+            self.updateInfoLabel.setProperty("text", "Error Occurred while Updating. Please Retry!")
 
     def removeElderFunc(self):
-        # ToDo remove Elder method
-        print()
+        removed = removeElder(str(self.updateElderId.text()))
+        if removed == "success":
+            self.destroy()
+        else:
+            self.updateInfoLabel.setProperty("text", "Error Removing! Please Retry!")
 
 
     def searchElderFunc(self):
-        # ToDo search Elder using ID for update/remove
-        print()
+        elder = getElder(str(self.updateElderId.text()))
+        if elder != "failed":
+            self.updateElderName.setProperty("text", str(elder["name"]))
+            self.updateElderAge.setProperty("value", int(elder["age"]))
+            self.updateElderTablets.setProperty("text", str(elder["tablets"]))
+            self.updateTabletQty.setProperty("value", int(elder["quantity"]))
+            recievedTime = QtCore.QTime(int(str(elder["timeToTake"]).split(":")[0]), int(str(elder["timeToTake"]).split(":")[1]))
+            self.updateTabletTimeToTake.setProperty("time", recievedTime)
+            pixmap = QPixmap("data/" + elder["id"] + "/100" + elder["id"] + ".jpg")
+            self.uelderImg.setPixmap(pixmap)
+        else:
+            self.updateInfoLabel.setProperty("text", "No Elder Found with given ID!")
+
+    def trainFace(self):
+        # ToDo open Face Trainer code
+        self.addElderBtn.setProperty("enabled", True)
 
 
     def storeXMLFile(self, filename):
         storeResponse = storeXML(filename)
         print(storeResponse)
+
+    def resetFields(self):
+        self.elderName.setProperty("text", "")
+        self.elderAge.setProperty("value", 0)
+        self.elderTablets.setProperty("text", "")
+        self.tabletQty.setProperty("value", 0)
+        resetTime = QtCore.QTime(0, 0)
+        resetDOB = QtCore.QDate(2000,1,1)
+        self.tabletTimeToTake.setProperty("time", resetTime)
+        self.elderDOB.setProperty("date", resetDOB)
+
+    def resetUpdateFields(self):
+        self.updateElderName.setProperty("text", "")
+        self.updateElderAge.setProperty("value", 0)
+        self.updateElderTablets.setProperty("text", "")
+        self.updateTabletQty.setProperty("value", 0)
+        resetTime = QtCore.QTime(0, 0)
+        self.updateTabletTimeToTake.setProperty("time", resetTime)
 
     def exitRegister(self):
         self.destroy()
@@ -196,13 +256,13 @@ class DetectElderUi(QtWidgets.QMainWindow):
     def detectElder(self):
         print("running face recognition cam window")
 
-        # ToDo detector will return elder_name so elder data can be retrived
+        # ToDo detector will return elder_name so elder data can be retrieved
         # ToDo pass returned elder ID here
 
         elder = getElder("chiran")
 
         if elder != "failed":
-            pixmap = QPixmap("data/"+elder["id"] + "/0"+elder["id"]+".jpg")
+            pixmap = QPixmap("data/"+elder["id"] + "/100"+elder["id"]+".jpg")
             self.elderImg.setPixmap(pixmap)
             self.elderId.setProperty("text", elder["id"])
             self.elderName.setProperty("text", elder["name"])
