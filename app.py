@@ -7,6 +7,7 @@ from firebase_auth import *
 from firebase_db import *
 from ElderTModel import *
 
+
 def center(self):
     frameGm = self.frameGeometry()
     screen = QtWidgets.QApplication.desktop().screenNumber(QtWidgets.QApplication.desktop().cursor().pos())
@@ -33,16 +34,24 @@ class MainUi(QtWidgets.QMainWindow):
         self.exitMenu.triggered.connect(self.exitApp)
 
         # set the table model
-        self.elderTableWidget = appendElderList() #getElders()
+        self.elderTableWidget = appendElderList(getElders())
         self.elderTableWidget.resize(1230, 260)
-        self.elderTableWidget.move(40,470)
+        self.elderTableWidget.move(40, 440)
         header = self.elderTableWidget.horizontalHeader()
         header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
         header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
+        custom_font = QFont()
+        custom_font.setPointSize(14)
+        custom_font.setBold(True)
+        self.elderTableWidget.setFont(custom_font)
         self.layout().addWidget(self.elderTableWidget)
+
+        self.elderCount = self.findChild(QtWidgets.QLCDNumber, "lcdNumber")
+
+        self.elderCount.setProperty("value", self.elderTableWidget.model().rowCount(self))
 
         self.centerWindow()
 
@@ -142,7 +151,8 @@ class RegisterElderUi(QtWidgets.QMainWindow):
             "age": int(self.updateElderAge.value()),
             "tablets": str(self.updateElderTablets.text()),
             "quantity": int(self.updateTabletQty.value()),
-            "timeToTake": str(self.updateTabletTimeToTake.time().hour()) + ":" + str(self.updateTabletTimeToTake.time().minute())
+            "timeToTake": str(self.updateTabletTimeToTake.time().hour()) + ":" + str(
+                self.updateTabletTimeToTake.time().minute())
         }
         response = updateElder(elder)
         if response == "success":
@@ -158,7 +168,6 @@ class RegisterElderUi(QtWidgets.QMainWindow):
         else:
             self.updateInfoLabel.setProperty("text", "Error Removing! Please Retry!")
 
-
     def searchElderFunc(self):
         elder = getElder(str(self.updateElderId.text()))
         if elder != "failed":
@@ -166,17 +175,18 @@ class RegisterElderUi(QtWidgets.QMainWindow):
             self.updateElderAge.setProperty("value", int(elder["age"]))
             self.updateElderTablets.setProperty("text", str(elder["tablets"]))
             self.updateTabletQty.setProperty("value", int(elder["quantity"]))
-            recievedTime = QtCore.QTime(int(str(elder["timeToTake"]).split(":")[0]), int(str(elder["timeToTake"]).split(":")[1]))
+            recievedTime = QtCore.QTime(int(str(elder["timeToTake"]).split(":")[0]),
+                                        int(str(elder["timeToTake"]).split(":")[1]))
             self.updateTabletTimeToTake.setProperty("time", recievedTime)
             pixmap = QPixmap("data/" + elder["id"] + "/100" + elder["id"] + ".jpg")
             self.uelderImg.setPixmap(pixmap)
+            self.infoLabel.setProperty("text", "")
         else:
             self.updateInfoLabel.setProperty("text", "No Elder Found with given ID!")
 
     def trainFace(self):
         # ToDo open Face Trainer code
         self.addElderBtn.setProperty("enabled", True)
-
 
     def storeXMLFile(self, filename):
         storeResponse = storeXML(filename)
@@ -188,7 +198,7 @@ class RegisterElderUi(QtWidgets.QMainWindow):
         self.elderTablets.setProperty("text", "")
         self.tabletQty.setProperty("value", 0)
         resetTime = QtCore.QTime(0, 0)
-        resetDOB = QtCore.QDate(2000,1,1)
+        resetDOB = QtCore.QDate(2000, 1, 1)
         self.tabletTimeToTake.setProperty("time", resetTime)
         self.elderDOB.setProperty("date", resetDOB)
 
@@ -243,10 +253,13 @@ class DetectElderUi(QtWidgets.QMainWindow):
         self.elderName = self.findChild(QtWidgets.QLabel, "elderName")
         self.elderAge = self.findChild(QtWidgets.QLabel, "elderAge")
         self.elderGender = self.findChild(QtWidgets.QLabel, "elderGender")
-        self.elderDOB = self.findChild(QtWidgets.QLabel, "elderName")
+        self.elderDOB = self.findChild(QtWidgets.QLabel, "elderDOB")
         self.elderTablets = self.findChild(QtWidgets.QLabel, "elderTablets")
         self.tabletQty = self.findChild(QtWidgets.QLabel, "tabletQty")
-        self.tabletTimeToTake = self.findChild(QtWidgets.QLabel, "tabletTimeToTake")
+        self.tabletTimeToTake = self.findChild(QtWidgets.QTimeEdit, "tabletTimeToTake")
+        self.elderImg = self.findChild(QtWidgets.QLabel, "elderImg")
+
+        self.detectElder()
 
         self.centerWindow()
 
@@ -255,23 +268,24 @@ class DetectElderUi(QtWidgets.QMainWindow):
 
     def detectElder(self):
         print("running face recognition cam window")
-
         # ToDo detector will return elder_name so elder data can be retrieved
         # ToDo pass returned elder ID here
 
         elder = getElder("chiran")
 
         if elder != "failed":
-            pixmap = QPixmap("data/"+elder["id"] + "/100"+elder["id"]+".jpg")
+            pixmap = QPixmap("data/" + elder["id"] + "/100" + elder["id"] + ".jpg")
             self.elderImg.setPixmap(pixmap)
             self.elderId.setProperty("text", elder["id"])
             self.elderName.setProperty("text", elder["name"])
             self.elderAge.setProperty("text", elder["age"])
+            self.elderGender.setProperty("text", elder["gender"])
             self.elderDOB.setProperty("text", elder["dob"])
             self.elderTablets.setProperty("text", elder["tablets"])
             self.tabletQty.setProperty("text", elder["quantity"])
-            self.tabletTimeToTake.setProperty("text", elder["timeToTake"])
-
+            recievedTime = QtCore.QTime(int(str(elder["timeToTake"]).split(":")[0]),
+                                        int(str(elder["timeToTake"]).split(":")[1]))
+            self.tabletTimeToTake.setProperty("time", recievedTime)
 
     def exitDetector(self):
         self.destroy()
@@ -348,7 +362,7 @@ class LoginUi(QtWidgets.QMainWindow):
         if result == "success":
             LoginUi.hide(self)
             self.home = MainUi()
-            self.home.showFullScreen()
+            self.home.show()
         else:
             self.hint.setProperty("text", result)
 

@@ -79,7 +79,7 @@
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>370</y>
+      <y>350</y>
       <width>1241</width>
       <height>20</height>
      </rect>
@@ -133,10 +133,10 @@
    <widget class="QLCDNumber" name="lcdNumber">
     <property name="geometry">
      <rect>
-      <x>1050</x>
-      <y>260</y>
-      <width>151</width>
-      <height>51</height>
+      <x>1070</x>
+      <y>240</y>
+      <width>131</width>
+      <height>41</height>
      </rect>
     </property>
    </widget>
@@ -144,7 +144,7 @@
     <property name="geometry">
      <rect>
       <x>710</x>
-      <y>260</y>
+      <y>240</y>
       <width>321</width>
       <height>51</height>
      </rect>
@@ -164,10 +164,10 @@
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>50</y>
-      <width>581</width>
-      <height>301</height>
+      <x>40</x>
+      <y>40</y>
+      <width>611</width>
+      <height>291</height>
      </rect>
     </property>
     <property name="text">
@@ -206,7 +206,7 @@
     <property name="geometry">
      <rect>
       <x>510</x>
-      <y>380</y>
+      <y>360</y>
       <width>281</width>
       <height>51</height>
      </rect>
