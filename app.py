@@ -143,6 +143,10 @@ class RegisterElderUi(QtWidgets.QMainWindow):
 
     def addElderFunc(self):
         self.infoLabel.setProperty("text", "Face Data Uploading.. Please Wait..")
+        msg = QMessageBox()
+        msg.setText("Please wait while Image Data uploads to firebase...")
+        msg.setIcon(QMessageBox.Warning)
+        msg.show()
         elder = {
             "id": str(self.elderId.text()),
             "name": str(self.elderName.text()),
@@ -154,6 +158,7 @@ class RegisterElderUi(QtWidgets.QMainWindow):
             "timeToTake": str(self.tabletTimeToTake.time().hour()) + ":" + str(self.tabletTimeToTake.time().minute())
         }
         self.storeXMLFile(self.elderId.text() + "_classifier.xml")
+        msg.hide()
         self.infoLabel.setProperty("text", "Elder Record creating.. Please Wait..")
         response = addElder(elder)
         if response == "success":
