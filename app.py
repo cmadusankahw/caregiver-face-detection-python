@@ -4,6 +4,7 @@ from PyQt5 import QtWidgets, uic, QtCore
 import sys
 from PyQt5.QtGui import *
 
+from create_classifier import train_classifer
 from create_dataset import *
 from firebase_db import *
 from model.ElderTModel import *
@@ -81,6 +82,9 @@ class RegisterElderUi(QtWidgets.QMainWindow):
         super(RegisterElderUi, self).__init__()
         uic.loadUi('gui/addElder.ui', self)
 
+        # no of captured images
+        self.x = 0
+
         # setting gender selection combo box
         self.elderGender = self.findChild(QtWidgets.QComboBox, "elderGender")
         self.elderGender.addItems(["Male", "Female"])
@@ -124,6 +128,10 @@ class RegisterElderUi(QtWidgets.QMainWindow):
         self.updateInfoLabel = self.findChild(QtWidgets.QLabel, "uinfoLabel")
         self.updateElderImg = self.findChild(QtWidgets.QLabel, "uelderImg")
 
+        self.msg = QMessageBox()
+        self.msg.setIcon(QMessageBox.Information)
+        self.msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
         pixmap = QPixmap("resources/homepagepic.png")
         self.elderImg.setPixmap(pixmap)
         self.updateElderImg.setPixmap(pixmap)
@@ -134,7 +142,6 @@ class RegisterElderUi(QtWidgets.QMainWindow):
         center(self)
 
     def addElderFunc(self):
-        # ToDo Run Image Capture and Detector passing elderId as dirname
         self.infoLabel.setProperty("text", "Face Data Uploading.. Please Wait..")
         elder = {
             "id": str(self.elderId.text()),
@@ -146,7 +153,7 @@ class RegisterElderUi(QtWidgets.QMainWindow):
             "quantity": int(self.tabletQty.value()),
             "timeToTake": str(self.tabletTimeToTake.time().hour()) + ":" + str(self.tabletTimeToTake.time().minute())
         }
-        # self.storeXMLFile(self.elderId.text() + "_classifier.xml")
+        self.storeXMLFile(self.elderId.text() + "_classifier.xml")
         self.infoLabel.setProperty("text", "Elder Record creating.. Please Wait..")
         response = addElder(elder)
         if response == "success":
@@ -196,13 +203,9 @@ class RegisterElderUi(QtWidgets.QMainWindow):
             self.updateInfoLabel.setProperty("text", "No Elder Found with given ID!")
 
     def trainFace(self):
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setText("Image Capture will start now. It will capture 300 images")
-        msg.setWindowTitle("Face Capture - Starting")
-        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-
-        retVal = msg.exec_()
+        self.msg.setText("Image Capture will start now. It will capture 300 images")
+        self.msg.setWindowTitle("Face Capture - Starting")
+        retVal = self.msg.exec_()
         if retVal == QMessageBox.Ok:
             self.capimg()
             self.addElderBtn.setProperty("enabled", True)
@@ -243,17 +246,24 @@ class RegisterElderUi(QtWidgets.QMainWindow):
 
     # ToDo to Edit
     def capimg(self):
-        x = start_capture(self.elderId.text())
-        self.infoLabel.setProperty("text", str("Number of images captured = " + str(x)))
+        self.x = start_capture(self.elderId.text())
+        self.infoLabel.setProperty("text", str("Number of images captured = " + str(self.x)))
+        self.trainmodel()
 
     # ToDo to edit
-    # def trainmodel(self):
-    #     if self.controller.num_of_images < 300:
-    #         # messagebox.showerror("ERROR", "No enough Data, Capture at least 300 images!")
-    #         return
-    #     train_classifer(self.controller.active_name)
-    #     # messagebox.showinfo("SUCCESS", "The modele has been successfully trained!")
-    #     self.controller.show_frame("PageFour")
+    def trainmodel(self):
+        if self.x < 300:
+            self.msg.setText("No of Captured Images aren't enough! Please retry!")
+            self.msg.setWindowTitle("Face Capture - Error")
+            retVal = self.msg.exec_()
+            if retVal == QMessageBox.Ok | retVal == QMessageBox.Cancel:
+                return
+        train_classifer(self.elderId.text())
+        self.msg.setText("Face Data Extracting and Training Successful!")
+        self.msg.setWindowTitle("Face Capture - Training")
+        successVal = self.msg.exec_()
+        if successVal == QMessageBox.Ok | successVal == QMessageBox.Cancel:
+            return
 
 
 # Detect an Elder with trained face recognition data ##########################################
