@@ -1,10 +1,8 @@
-import json
 import os
 import time
-import requests
 from PyQt5.QtWidgets import *
 
-from ElderTModel import *
+from model.ElderTModel import *
 from firebase_auth import *
 
 db = firebase.database()
@@ -161,7 +159,7 @@ def removeElder(id):
             print(error)
         return "failed"
 
-def appendElderList(tabledata=tableData, header=headerData):
+def appendElderList(tabledata, header=headerData):
     elderTable = QTableView()
     elderTable.setModel(ElderTableModel(tabledata, header))
     elderTable.model().layoutChanged.emit()

@@ -1,11 +1,12 @@
+from tkinter import messagebox
+
 from PyQt5 import QtWidgets, uic, QtCore
 import sys
 from PyQt5.QtGui import *
-from create_classifier import *
+
 from create_dataset import *
-from firebase_auth import *
 from firebase_db import *
-from ElderTModel import *
+from model.ElderTModel import *
 
 
 def center(self):
@@ -50,6 +51,10 @@ class MainUi(QtWidgets.QMainWindow):
         self.layout().addWidget(self.elderTableWidget)
 
         self.elderCount = self.findChild(QtWidgets.QLCDNumber, "lcdNumber")
+
+        self.mainImg = self.findChild(QtWidgets.QLabel, 'mainImg')
+        pixmap = QPixmap("resources/main.png")
+        self.mainImg.setPixmap(pixmap)
 
         self.elderCount.setProperty("value", self.elderTableWidget.model().rowCount(self))
 
@@ -119,6 +124,10 @@ class RegisterElderUi(QtWidgets.QMainWindow):
         self.updateInfoLabel = self.findChild(QtWidgets.QLabel, "uinfoLabel")
         self.updateElderImg = self.findChild(QtWidgets.QLabel, "uelderImg")
 
+        pixmap = QPixmap("resources/homepagepic.png")
+        self.elderImg.setPixmap(pixmap)
+        self.updateElderImg.setPixmap(pixmap)
+
         self.centerWindow()
 
     def centerWindow(self):
@@ -170,6 +179,8 @@ class RegisterElderUi(QtWidgets.QMainWindow):
 
     def searchElderFunc(self):
         elder = getElder(str(self.updateElderId.text()))
+        self.removeElderBtn.setProperty("enabled", True)
+        self.updateElderBtn.setProperty("enabled", True)
         if elder != "failed":
             self.updateElderName.setProperty("text", str(elder["name"]))
             self.updateElderAge.setProperty("value", int(elder["age"]))
@@ -180,33 +191,50 @@ class RegisterElderUi(QtWidgets.QMainWindow):
             self.updateTabletTimeToTake.setProperty("time", recievedTime)
             pixmap = QPixmap("data/" + elder["id"] + "/100" + elder["id"] + ".jpg")
             self.uelderImg.setPixmap(pixmap)
-            self.infoLabel.setProperty("text", "")
+            self.updateInfoLabel.setProperty("text", "")
         else:
             self.updateInfoLabel.setProperty("text", "No Elder Found with given ID!")
 
     def trainFace(self):
-        # ToDo open Face Trainer code
-        self.addElderBtn.setProperty("enabled", True)
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText("Image Capture will start now. It will capture 300 images")
+        msg.setWindowTitle("Face Capture - Starting")
+        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+        retVal = msg.exec_()
+        if retVal == QMessageBox.Ok:
+            self.capimg()
+            self.addElderBtn.setProperty("enabled", True)
 
     def storeXMLFile(self, filename):
         storeResponse = storeXML(filename)
         print(storeResponse)
 
     def resetFields(self):
+        self.addElderBtn.setProperty("enabled", False)
         self.elderName.setProperty("text", "")
         self.elderAge.setProperty("value", 0)
         self.elderTablets.setProperty("text", "")
         self.tabletQty.setProperty("value", 0)
+        self.updateInfoLabel.setProperty("text", "")
+        pixmap = QPixmap("resources/homepagepic.png")
+        self.updateElderImg.setPixmap(pixmap)
         resetTime = QtCore.QTime(0, 0)
         resetDOB = QtCore.QDate(2000, 1, 1)
         self.tabletTimeToTake.setProperty("time", resetTime)
         self.elderDOB.setProperty("date", resetDOB)
 
     def resetUpdateFields(self):
+        self.removeElderBtn.setProperty("enabled", False)
+        self.updateElderBtn.setProperty("enabled", False)
         self.updateElderName.setProperty("text", "")
         self.updateElderAge.setProperty("value", 0)
         self.updateElderTablets.setProperty("text", "")
         self.updateTabletQty.setProperty("value", 0)
+        self.updateInfoLabel.setProperty("text", "")
+        pixmap = QPixmap("resources/homepagepic.png")
+        self.updateElderImg.setPixmap(pixmap)
         resetTime = QtCore.QTime(0, 0)
         self.updateTabletTimeToTake.setProperty("time", resetTime)
 
@@ -214,12 +242,9 @@ class RegisterElderUi(QtWidgets.QMainWindow):
         self.destroy()
 
     # ToDo to Edit
-    # def capimg(self):
-    #     self.numimglabel.config(text=str("Captured Images = 0 "))
-    #     # messagebox.showinfo("INSTRUCTIONS", "We will Capture 300 pic of your Face.")
-    #     x = start_capture(self.controller.active_name)
-    #     self.controller.num_of_images = x
-    #     self.numimglabel.config(text=str("Number of images captured = " + str(x)))
+    def capimg(self):
+        x = start_capture(self.elderId.text())
+        self.infoLabel.setProperty("text", str("Number of images captured = " + str(x)))
 
     # ToDo to edit
     # def trainmodel(self):
@@ -245,9 +270,6 @@ class DetectElderUi(QtWidgets.QMainWindow):
         self.exitWindow = self.findChild(QtWidgets.QPushButton, 'exitButton')
         self.exitWindow.clicked.connect(self.exitDetector)
 
-        # find the image
-        self.elderImg = self.findChild(QtWidgets.QLabel, "elderImg")
-
         # find the text inputs
         self.elderId = self.findChild(QtWidgets.QLabel, "elderId")
         self.elderName = self.findChild(QtWidgets.QLabel, "elderName")
@@ -258,6 +280,9 @@ class DetectElderUi(QtWidgets.QMainWindow):
         self.tabletQty = self.findChild(QtWidgets.QLabel, "tabletQty")
         self.tabletTimeToTake = self.findChild(QtWidgets.QTimeEdit, "tabletTimeToTake")
         self.elderImg = self.findChild(QtWidgets.QLabel, "elderImg")
+
+        pixmap = QPixmap("resources/homepagepic.png")
+        self.elderImg.setPixmap(pixmap)
 
         self.detectElder()
 
