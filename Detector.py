@@ -49,7 +49,7 @@ def main_app(name):
                     img = cv2.imread(f".\\data\\{name}\\{pred}{name}.jpg", cv2.IMREAD_UNCHANGED)
                     resized = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
                     cv2.imwrite(f".\\data\\{name}\\50{name}.jpg", resized)
-                    Image1 = Image.open(f".\\2.png") 
+                    Image1 = Image.open(f"resources/2.png")
                       
                     # make a copy the image so that the  
                     # original image does not get affected 
