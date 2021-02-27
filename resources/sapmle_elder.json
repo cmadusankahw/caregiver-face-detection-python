@@ -1,0 +1,19 @@
+{
+  "age" : 80,
+  "dob" : "1953-01-01",
+  "gender" : "Male",
+  "id" : "karunadasa",
+  "name" : "karunadasa witharana",
+  "tablets" : [
+  	{
+  	"tablet" : "Atorvastatin",
+  	"quantity" : 3,
+  	"timeToTake" : "10:04"
+  	},
+  	{
+  	"tablet" : "Atorvastatin",
+  	"quantity" : 2,
+  	"timeToTake" : "08:04"
+  	}
+  ]
+}
