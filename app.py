@@ -529,7 +529,7 @@ class RegisterElderUi(QtWidgets.QMainWindow):
             self.trainmodel()
 
     def trainmodel(self):
-        if self.x < 300:
+        if self.x < 500:
             self.msg.setText("No of Captured Images aren't enough! Please retry!")
             self.msg.setWindowTitle(messageBoxTitle)
             self.msg.show()
@@ -644,6 +644,27 @@ class DetectElderUi(QtWidgets.QMainWindow):
             self.elderGender.setProperty("text", elder[genderStr])
             self.elderDOB.setProperty("text", elder[dobStr])
             self.retriveTabletDetails(elder[tabletsStr])
+            tablet_1 = ''
+            tablet_2 = ''
+            tablet_3 = ''
+            if len(elder[tabletsStr]) > 2:
+                tablet_1 = elder[tabletsStr][0]
+                tablet_2 = elder[tabletsStr][1]
+                tablet_3 = elder[tabletsStr][2]
+            elif len(elder[tabletsStr]) == 2:
+                tablet_1 = elder[tabletsStr][0]
+                tablet_2 = elder[tabletsStr][1]
+            elif len(elder[tabletsStr]) == 1:
+                tablet_1 = elder[tabletsStr][0]
+
+            new_elder = {
+                idStr: elder[idStr],
+                'tablet1': tablet_1,
+                'tablet2': tablet_2,
+                'tablet3': tablet_3
+            }
+            response = addElderToIot(new_elder)
+
 
     def exitDetector(self):
         self.destroy()

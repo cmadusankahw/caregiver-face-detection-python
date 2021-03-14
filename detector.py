@@ -36,7 +36,7 @@ def faceDetector(names):
 
                     """ @note: decrese this value for confidence check.
                         @note: Please note this will enable face detection easily. But less accurately"""
-                    if confidence > 65:
+                    if confidence > 66:
                         pred += +1
                         text = name.upper()
                         font = cv2.FONT_HERSHEY_PLAIN

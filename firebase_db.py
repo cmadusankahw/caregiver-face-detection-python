@@ -90,7 +90,6 @@ def getElders():
         return []
 
 
-
 def getElderNames():
     try:
         elders = db.child(dbElders).get()
@@ -107,6 +106,7 @@ def getElderNames():
         if error:
             print(error)
         return []
+
 
 def getElder(id):
     try:
@@ -134,6 +134,23 @@ def addElder(elder):
             tabletsStr: elder[tabletsStr]
         })
         print('successfully added an elder')
+        return success
+    except requests.HTTPError as error:
+        if error:
+            print(error)
+        return failed
+
+
+def addElderToIot(elder):
+    try:
+        db.child('IOT').child(elder[idStr]).set({
+            idStr: elder[idStr],
+            'Run': 1,
+            'Tablet1': elder['tablet1'],
+            'Tablet2': elder['tablet2'],
+            'Tablet3': elder['tablet3'],
+        })
+        print('successfully updated elder to IOT table')
         return success
     except requests.HTTPError as error:
         if error:

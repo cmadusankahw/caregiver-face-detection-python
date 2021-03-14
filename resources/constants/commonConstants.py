@@ -33,6 +33,6 @@ jpgType = ".jpg"
 tablet_items = ['None', 'Atorvastatin', 'Glimepiride', 'Captopril', 'panadol']
 
 # Classifier
-noOfImgToCapture = 310
+noOfImgToCapture = 510
 scaleFactorVal = 1.3
 minNeighboursVal = 5
