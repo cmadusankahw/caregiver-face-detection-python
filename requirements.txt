@@ -10,3 +10,5 @@ setuptools
 gcloud
 keras
 tensorflow
+python-jwt==2.0.1
+jwt==1.2.0

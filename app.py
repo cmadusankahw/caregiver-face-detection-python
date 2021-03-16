@@ -644,18 +644,18 @@ class DetectElderUi(QtWidgets.QMainWindow):
             self.elderGender.setProperty("text", elder[genderStr])
             self.elderDOB.setProperty("text", elder[dobStr])
             self.retriveTabletDetails(elder[tabletsStr])
-            tablet_1 = ''
-            tablet_2 = ''
-            tablet_3 = ''
+            tablet_1 = 0
+            tablet_2 = 0
+            tablet_3 = 0
             if len(elder[tabletsStr]) > 2:
-                tablet_1 = elder[tabletsStr][0]
-                tablet_2 = elder[tabletsStr][1]
-                tablet_3 = elder[tabletsStr][2]
+                tablet_1 = int(elder[tabletsStr][0][quantityStr])
+                tablet_2 = int(elder[tabletsStr][1][quantityStr])
+                tablet_3 = int(elder[tabletsStr][2][quantityStr])
             elif len(elder[tabletsStr]) == 2:
-                tablet_1 = elder[tabletsStr][0]
-                tablet_2 = elder[tabletsStr][1]
+                tablet_1 = int(elder[tabletsStr][0][quantityStr])
+                tablet_2 = int(elder[tabletsStr][1][quantityStr])
             elif len(elder[tabletsStr]) == 1:
-                tablet_1 = elder[tabletsStr][0]
+                tablet_1 = int(elder[tabletsStr][0][quantityStr])
 
             new_elder = {
                 idStr: elder[idStr],
@@ -663,7 +663,9 @@ class DetectElderUi(QtWidgets.QMainWindow):
                 'tablet2': tablet_2,
                 'tablet3': tablet_3
             }
-            response = addElderToIot(new_elder)
+            addElderToIot(new_elder)
+
+            addElderToReport(elder)
 
 
     def exitDetector(self):

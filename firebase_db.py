@@ -143,13 +143,23 @@ def addElder(elder):
 
 def addElderToIot(elder):
     try:
-        db.child('IOT').child(elder[idStr]).set({
-            idStr: elder[idStr],
+        db.child('IOT').set({
             'Run': 1,
             'Tablet1': elder['tablet1'],
             'Tablet2': elder['tablet2'],
             'Tablet3': elder['tablet3'],
         })
+        print('successfully updated elder to IOT table')
+        return success
+    except requests.HTTPError as error:
+        if error:
+            print(error)
+        return failed
+
+
+def addElderToReport(elder):
+    try:
+        db.child('Report').child(elder[idStr]).set(elder)
         print('successfully updated elder to IOT table')
         return success
     except requests.HTTPError as error:
